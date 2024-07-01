@@ -43,5 +43,9 @@
   },
   "engines": {
     "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@types/node": "^20.14.9",
+    "openai": "^4.52.2"
   }
 }
