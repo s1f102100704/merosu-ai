@@ -6,14 +6,15 @@ import { workEvent } from '../event/workEvent';
 import { workMethod } from '../model/workMethod';
 import { novelQuery } from '../repository/novelQuery';
 import { workCommand } from '../repository/workCommand';
+import { getContentKey, getImageKey } from '../service/getS3Key';
 export const workUseCase = {
   create: (novelUrl: string): Promise<LoadingWorkEntity> =>
     transaction('RepeatableRead', async (tx) => {
       const { title, author, html } = await novelQuery.scrape(novelUrl);
-      const loadingWork = workMethod.create({ novelUrl, title, author });
+      const loadingWork = await workMethod.create({ novelUrl, title, author });
 
       await workCommand.save(tx, loadingWork);
-      await s3.putText(`works/${loadingWork.id}/content.txt`, html);
+      await s3.putText(getContentKey(loadingWork.id), html);
 
       workEvent.workCreated({ loadingWork, html });
 
@@ -21,10 +22,10 @@ export const workUseCase = {
     }),
   complete: (loadingWork: LoadingWorkEntity, image: Buffer): Promise<void> =>
     transaction('RepeatableRead', async (tx) => {
-      const completedWork = workMethod.complete(loadingWork);
+      const completedWork = await workMethod.complete(loadingWork);
 
       await workCommand.save(tx, completedWork);
-      await s3.putImage(`works/${loadingWork.id}/image.png`, image);
+      await s3.putImage(getImageKey(loadingWork.id), image);
     }),
   failure: (loadingWork: LoadingWorkEntity, errorMsg: string): Promise<void> =>
     transaction('ReadCommitted', async (tx) => {

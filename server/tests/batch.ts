@@ -11,7 +11,7 @@ const main = async (): Promise<void> => {
   const { html, title, author } = await novelQuery.scrape(novelUrl);
   const filePath = join(__dirname, 'www.aozora.gr.jp/files', basename(novelUrl));
   writeFileSync(filePath, html, 'utf8');
-  const loadingWork = workMethod.create({ novelUrl, title, author });
+  const loadingWork = await workMethod.create({ novelUrl, title, author });
   const chatResult = await sendChat(loadingWork, html);
   const imageResult = await genImage(chatResult.imagePrompt);
 
