@@ -1,5 +1,6 @@
 import type { LoadingWorkEntity } from 'api/@types/work';
 import assert from 'assert';
+import type { ChatCompletion, ImagesResponse } from 'openai/resources';
 import { OPENAI_MODEL } from 'service/envValues';
 import { openai } from 'service/openai';
 import { workUseCase } from '../useCase/workUseCase';
@@ -13,9 +14,27 @@ const createChatPrompt = (
 出力した結果をそのままDall-E 3に渡すため、余計なテキストを含めず目的のプロンプトのみ生成してください。
 ==============
 ${html}`;
-console.log(12);
-const genImage = async (prompt: string): Promise<Buffer> => {
-  console.log(11);
+
+export const sendChat = async (
+  loadingWork: LoadingWorkEntity,
+  html: string,
+): Promise<{ chatPrompt: string; imagePrompt: string; res: ChatCompletion }> => {
+  const chatPrompt = createChatPrompt(loadingWork, html);
+  const res = await openai.chat.completions.create({
+    model: OPENAI_MODEL,
+    temperature: 0,
+    messages: [
+      { role: 'system', content: 'あなたは小説の編集者です。' },
+      { role: 'user', content: chatPrompt },
+    ],
+  });
+
+  const imagePrompt = res.choices[0].message.content;
+  assert(imagePrompt);
+
+  return { chatPrompt, imagePrompt, res };
+};
+export const genImage = async (prompt: string): Promise<{ image: Buffer; res: ImagesResponse }> => {
   const res = await openai.images.generate({
     model: 'dall-e-3',
     prompt,
@@ -25,28 +44,17 @@ const genImage = async (prompt: string): Promise<Buffer> => {
 
   const { b64_json } = res.data[0];
   const arrayBuffer = await fetch(`data:image/png;base64,${b64_json}`).then((b) => b.arrayBuffer());
-  return Buffer.from(arrayBuffer);
+  return { image: Buffer.from(arrayBuffer), res };
 };
+
 export const workEvent = {
   workCreated: (params: { loadingWork: LoadingWorkEntity; html: string }): void => {
-    const chatPrompt = createChatPrompt(params.loadingWork, params.html);
-    openai.chat.completions
-      .create({
-        model: OPENAI_MODEL,
-        temperature: 0,
-        messages: [
-          { role: 'system', content: 'あなたは小説の編集者です。' },
-          { role: 'user', content: chatPrompt },
-        ],
-      })
-      .then(async (response) => {
-        console.log(0);
-        const imagePrompt = response.choices[0].message.content;
-        assert(imagePrompt);
-        console.log(2);
-        const image = await genImage(imagePrompt);
-        console.log(3);
+    sendChat(params.loadingWork, params.html)
+      .then(async ({ imagePrompt }) => {
+        const { image } = await genImage(imagePrompt);
+
         await workUseCase.complete(params.loadingWork, image);
-      });
+      })
+      .catch((e) => workUseCase.failure(params.loadingWork, e.message));
   },
 };
