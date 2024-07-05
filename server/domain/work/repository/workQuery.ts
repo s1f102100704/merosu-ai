@@ -51,3 +51,4 @@ export const workQuery = {
   listAll: (tx: Prisma.TransactionClient): Promise<WorkEntity[]> =>
     tx.work.findMany().then((works) => works.map(toWorkEntity)),
 };
+//test
