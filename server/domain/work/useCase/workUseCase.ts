@@ -13,6 +13,7 @@ export const workUseCase = {
       const loadingWork = workMethod.create({ novelUrl, title, author });
 
       await workCommand.save(tx, loadingWork);
+      await s3.putText(`works/${loadingWork.id}/content.txt`, html);
 
       workEvent.workCreated({ loadingWork, html });
 
@@ -23,7 +24,7 @@ export const workUseCase = {
       const completedWork = workMethod.complete(loadingWork);
 
       await workCommand.save(tx, completedWork);
-      await s3.putImage(`works${loadingWork.id}/image.png`, image);
+      await s3.putImage(`works/${loadingWork.id}/image.png`, image);
     }),
   failure: (loadingWork: LoadingWorkEntity, errorMsg: string): Promise<void> =>
     transaction('ReadCommitted', async (tx) => {
