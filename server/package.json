@@ -22,6 +22,7 @@
     "migrate:dev:createonly": "prisma migrate dev --create-only",
     "migrate:deploy": "prisma migrate deploy && npx prisma db seed",
     "migrate:reset": "prisma migrate reset",
+    "batch": "node -r esbuild-register tests/batch.ts",
     "start": "node --enable-source-maps index.js",
     "test": "vitest run --coverage",
     "typecheck": "tsc --noEmit"
@@ -44,6 +45,7 @@
     "fastify": "^4.26.2",
     "get-jwks": "^9.0.1",
     "iconv-lite": "^0.6.3",
+    "openai": "^4.52.3",
     "ulid": "^2.3.0",
     "velona": "^0.8.0",
     "zod": "^3.23.6"
@@ -58,8 +60,10 @@
     "esbuild-node-externals": "^1.13.0",
     "esbuild-register": "^3.5.0",
     "frourio": "^1.0.1",
+    "msw": "^2.3.1",
     "node-dev": "^8.0.0",
     "notios": "^0.4.1",
+    "nsw": "^0.1.0",
     "prisma": "^5.13.0",
     "typescript": "^5.4.5"
   },
