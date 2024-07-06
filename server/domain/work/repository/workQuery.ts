@@ -4,7 +4,7 @@ import type { WorkEntity } from 'api/@types/work';
 import { brandedId } from 'service/brandedId';
 import { s3 } from 'service/s3Client';
 import { z } from 'zod';
-import { getContentKey } from '../service/getS3Key';
+import { getContentKey, getImageKey } from '../service/getS3Key';
 
 const toWorkEntity = async (prismaWork: Work): Promise<WorkEntity> => {
   const id = brandedId.work.entity.parse(prismaWork.id);
@@ -32,7 +32,7 @@ const toWorkEntity = async (prismaWork: Work): Promise<WorkEntity> => {
         author: prismaWork.author,
         createdTime: prismaWork.createdAt.getTime(),
         contentUrl,
-        imageUrl: 'null',
+        imageUrl: await s3.getSignedUrl(getImageKey(id)),
         errorMsg: null,
       };
 
@@ -55,6 +55,8 @@ const toWorkEntity = async (prismaWork: Work): Promise<WorkEntity> => {
 };
 export const workQuery = {
   listAll: (tx: Prisma.TransactionClient): Promise<WorkEntity[]> =>
-    tx.work.findMany().then((works) => Promise.all(works.map(toWorkEntity))),
+    tx.work
+      .findMany({ orderBy: { createdAt: 'desc' } })
+      .then((works) => Promise.all(works.map(toWorkEntity))),
 };
 //test
