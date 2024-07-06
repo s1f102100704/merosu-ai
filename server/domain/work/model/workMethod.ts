@@ -10,7 +10,7 @@ const aozoraUrl = yup
   .test(
     'is-aozora-url',
     'URL must start with "aozora"',
-    (value) => typeof value === 'string' && value.startsWith('aozora'),
+    (value) => typeof value === 'string' && value.startsWith('https://www.aozora.gr.jp/'),
   );
 
 const workSchema = yup.object().shape({
