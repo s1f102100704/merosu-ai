@@ -19,6 +19,10 @@
     transform: translate(-50%, -50%) rotate(0deg);
   }
 
+  90% {
+    transform: translate(-50%, -50%) rotate(50deg);
+  }
+
   100% {
     transform: translate(-50%, -50%) rotate(360deg);
   }
