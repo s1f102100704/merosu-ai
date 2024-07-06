@@ -1,8 +1,9 @@
-import type { LoadingWorkEntity } from 'api/@types/work';
+import type { CompletedWorkEntity, FailedWorkEntity, LoadingWorkEntity } from 'api/@types/work';
 import assert from 'assert';
 import type { ChatCompletion, ImagesResponse } from 'openai/resources';
 import { OPENAI_MODEL } from 'service/envValues';
 import { openai } from 'service/openai';
+import { websocket } from 'service/websocket';
 import { workUseCase } from '../useCase/workUseCase';
 
 const createChatPrompt = (
@@ -56,5 +57,8 @@ export const workEvent = {
         await workUseCase.complete(params.loadingWork, image);
       })
       .catch((e) => workUseCase.failure(params.loadingWork, e.message));
+  },
+  workLoaded: (work: CompletedWorkEntity | FailedWorkEntity): void => {
+    websocket.broadcast(work);
   },
 };

@@ -26,10 +26,13 @@ export const workUseCase = {
 
       await workCommand.save(tx, completedWork);
       await s3.putImage(getImageKey(loadingWork.id), image);
+
+      workEvent.workLoaded(completedWork);
     }),
   failure: (loadingWork: LoadingWorkEntity, errorMsg: string): Promise<void> =>
     transaction('ReadCommitted', async (tx) => {
       const failedWork = workMethod.failure(loadingWork, errorMsg);
       await workCommand.save(tx, failedWork);
+      workEvent.workLoaded(failedWork);
     }),
 };
