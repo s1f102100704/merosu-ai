@@ -11,7 +11,7 @@ const aozoraUrl = yup
   .test('is-http-or-https', 'URL must start with "aozora"', (value) => {
     if (typeof value !== 'string') return false;
     const url = new URL(value);
-    return (url.protocol = 'https:');
+    return url.protocol === 'http:' || url.protocol === 'https:';
   })
   .test(
     'is-aozora-url',
