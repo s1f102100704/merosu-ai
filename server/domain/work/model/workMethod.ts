@@ -7,11 +7,18 @@ import { getContentKey, getImageKey } from '../service/getS3Key';
 
 const aozoraUrl = yup
   .string()
+  .url('有効なURLでなければいけない')
+  .test('is-http-or-https', 'URL must start with "aozora"', (value) => {
+    if (typeof value !== 'string') return false;
+    const url = new URL(value);
+    return (url.protocol = 'https:');
+  })
   .test(
     'is-aozora-url',
-    'URL must start with "aozora"',
+    'URLは "https://www.aozora.gr.jp/" で始まる必要があります',
     (value) => typeof value === 'string' && value.startsWith('https://www.aozora.gr.jp/'),
-  );
+  )
+  .required();
 
 const workSchema = yup.object().shape({
   novelUrl: aozoraUrl.required(),
