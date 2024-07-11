@@ -39,6 +39,8 @@ const MainContent = (props: { work: WorkEntity; contentDict: ContentDict }) => {
     case 'completed':
       return renderCompleted(props.work, sanitizedContent);
     case 'failed':
+      console.log('propswork', props.work);
+      console.log(sanitizedContent);
       return renderFailed(props.work);
     default:
       throw new Error('Unexpected status');
