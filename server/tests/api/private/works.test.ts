@@ -34,9 +34,8 @@ test(`${POST(noCookieClient.private.works)} -completed`, async () => {
 test(`${POST(noCookieClient.private.works)} -failed`, async () => {
   const userClient = await createUserClient();
   const novelUrl = 'https://www.aozora.gr.jp/cards/000879/files/empty.html';
-
   await userClient.private.works.$post({ body: { novelUrl } });
-
+  console.log(0);
   //eslint-disable-next-line no-constant-condition
   while (true) {
     const res = await userClient.private.works.$get();
