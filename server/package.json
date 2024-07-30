@@ -42,7 +42,6 @@
     "@prisma/client": "^5.13.0",
     "aspida": "^1.14.0",
     "cheerio": "^1.0.0-rc.12",
-    "dompurify": "^3.1.6",
     "dotenv": "^16.4.5",
     "fastify": "^4.26.2",
     "get-jwks": "^9.0.1",

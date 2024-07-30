@@ -3,7 +3,6 @@ import type { EntityId } from 'api/@types/brandedId';
 import type { CompletedWorkEntity, FailedWorkEntity, WorkEntity } from 'api/@types/work';
 import { ContentLoading } from 'components/loading/ContentLoading';
 import { Loading } from 'components/loading/Loading';
-import DOMPurify from 'dompurify';
 import { useCatchApiErr } from 'hooks/useCatchApiErr';
 import type { FormEvent } from 'react';
 import { useCallback, useEffect, useState } from 'react';
@@ -14,37 +13,33 @@ import styles from './works.module.css';
 
 type ContentDict = Record<EntityId['work'], string | undefined>;
 
-const renderLoading = () => (
-  <div style={{ height: '500px' }}>
-    <ContentLoading />
-  </div>
-);
-
-const renderCompleted = (work: WorkEntity, sanitizedContent: string) => (
-  <div className={styles.imageFrame}>
-    <img src={work.imageUrl ?? undefined} alt={work.title} className={styles.workImage} />
-    <div className={styles.contentText} dangerouslySetInnerHTML={{ __html: sanitizedContent }} />
-  </div>
-);
-
-const renderFailed = (work: WorkEntity) => <div className={styles.errorMsg}>{work.errorMsg}</div>;
-
 const MainContent = (props: { work: WorkEntity; contentDict: ContentDict }) => {
-  const content = props.contentDict[props.work.id];
-  const sanitizedContent = content ? DOMPurify.sanitize(content) : '';
-
   switch (props.work.status) {
     case 'loading':
-      return renderLoading();
+      return (
+        <div style={{ height: '500px' }}>
+          <ContentLoading />
+        </div>
+      );
     case 'completed':
-      return renderCompleted(props.work, sanitizedContent);
+      return (
+        <div className={styles.imageFrame}>
+          <img src={props.work.imageUrl} alt={props.work.title} className={styles.workImage} />;
+          <div
+            className={styles.contentText}
+            dangerouslySetInnerHTML={{
+              __html: props.contentDict[props.work.id] ?? '',
+            }}
+          />
+        </div>
+      );
     case 'failed':
-      return renderFailed(props.work);
+      return <div className={styles.errorMsg}> {props.work.errorMsg}</div>;
+    /* v8 ignore next 2 */
     default:
-      throw new Error('Unexpected status');
+      throw new Error(props.work satisfies never);
   }
 };
-
 export const Works = () => {
   const catchApiErr = useCatchApiErr();
   const { lastMessage } = useWebSocket(
