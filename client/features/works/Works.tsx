@@ -62,6 +62,13 @@ export const Works = () => {
     if (work !== null && works?.every((w) => w.id !== work.id)) {
       setWorks((works) => [work, ...(works ?? [])]);
     }
+    deleteWork();
+  };
+
+  const deleteWork = () => {
+    if (works !== undefined && works?.length > 3) {
+      setWorks(works.slice(0, 3));
+    }
   };
 
   useEffect(() => {
