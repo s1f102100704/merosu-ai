@@ -3,6 +3,7 @@ import type { EntityId } from 'api/@types/brandedId';
 import type { CompletedWorkEntity, FailedWorkEntity, WorkEntity } from 'api/@types/work';
 import { ContentLoading } from 'components/loading/ContentLoading';
 import { Loading } from 'components/loading/Loading';
+import DOMPurify from 'dompurify';
 import { useCatchApiErr } from 'hooks/useCatchApiErr';
 import type { FormEvent } from 'react';
 import { useCallback, useEffect, useState } from 'react';
@@ -12,32 +13,34 @@ import { SERVER_PORT } from 'utils/envValues';
 import styles from './works.module.css';
 
 type ContentDict = Record<EntityId['work'], string | undefined>;
+const renderLoading = () => (
+  <div style={{ height: '500px' }}>
+    <ContentLoading />
+  </div>
+);
+
+const renderCompleted = (work: WorkEntity, sanitizedContent: string) => (
+  <div className={styles.imageFrame}>
+    <img src={work.imageUrl ?? undefined} alt={work.title} className={styles.workImage} />
+    <div className={styles.contentText} dangerouslySetInnerHTML={{ __html: sanitizedContent }} />
+  </div>
+);
+
+const renderFailed = (work: WorkEntity) => <div className={styles.errorMsg}>{work.errorMsg}</div>;
 
 const MainContent = (props: { work: WorkEntity; contentDict: ContentDict }) => {
+  const content = props.contentDict[props.work.id];
+  const sanitizedContent = content ? DOMPurify.sanitize(content) : '';
   switch (props.work.status) {
     case 'loading':
-      return (
-        <div style={{ height: '500px' }}>
-          <ContentLoading />
-        </div>
-      );
+      return renderLoading();
     case 'completed':
-      return (
-        <div className={styles.imageFrame}>
-          <img src={props.work.imageUrl} alt={props.work.title} className={styles.workImage} />;
-          <div
-            className={styles.contentText}
-            dangerouslySetInnerHTML={{
-              __html: props.contentDict[props.work.id] ?? '',
-            }}
-          />
-        </div>
-      );
+      return renderCompleted(props.work, sanitizedContent);
     case 'failed':
-      return <div className={styles.errorMsg}> {props.work.errorMsg}</div>;
+      return renderFailed(props.work);
     /* v8 ignore next 2 */
     default:
-      throw new Error(props.work satisfies never);
+      throw new Error('Unexpected status');
   }
 };
 export const Works = () => {
@@ -60,16 +63,21 @@ export const Works = () => {
     setNovelUrl('');
     const work = await apiClient.private.works.$post({ body: { novelUrl } }).catch(catchApiErr);
     if (work !== null && works?.every((w) => w.id !== work.id)) {
-      setWorks((works) => [work, ...(works ?? [])]);
+      setWorks((prevWorks) => {
+        const updatedWorks = [work, ...(prevWorks ?? [])];
+        return updatedWorks.length > 3 ? updatedWorks.slice(0, 3) : updatedWorks;
+      });
+      // setWorks((works) => [work, ...(works ?? [])]);
     }
-    deleteWork();
+    // deleteWork();
   };
 
-  const deleteWork = () => {
-    if (works !== undefined && works?.length > 3) {
-      setWorks(works.slice(0, 3));
-    }
-  };
+  // const deleteWork = () => {
+  //   if (works !== undefined && works?.length > 2) {
+  //     console.log(works.length);
+  //     setWorks(works.slice(0, 2));
+  //   }
+  // };
 
   useEffect(() => {
     if (works !== undefined) return;
@@ -81,17 +89,32 @@ export const Works = () => {
       })
       .catch(catchApiErr);
   }, [catchApiErr, works, contentDict, fetchContent]);
+
   useEffect(() => {
     if (lastMessage === null) return;
     const loadedWork: CompletedWorkEntity | FailedWorkEntity = JSON.parse(lastMessage.data);
-    setWorks((works) =>
-      works?.some((w) => w.id === loadedWork.id)
-        ? works.map((w) => (w.id === loadedWork.id ? loadedWork : w))
-        : [loadedWork, ...(works ?? [])],
-    );
+    setWorks((prevWorks) => {
+      const updatedWorks = prevWorks?.some((w) => w.id === loadedWork.id)
+        ? prevWorks.map((w) => (w.id === loadedWork.id ? loadedWork : w))
+        : [loadedWork, ...(prevWorks ?? [])];
+      return updatedWorks.length > 3 ? updatedWorks.slice(0, 3) : updatedWorks;
+    });
 
-    contentDict[loadedWork.id] === undefined && fetchContent(loadedWork);
+    if (contentDict[loadedWork.id] === undefined) {
+      fetchContent(loadedWork);
+    }
   }, [lastMessage, contentDict, fetchContent]);
+  // useEffect(() => {
+  //   if (lastMessage === null) return;
+  //   const loadedWork: CompletedWorkEntity | FailedWorkEntity = JSON.parse(lastMessage.data);
+  //   setWorks((works) =>
+  //     works?.some((w) => w.id === loadedWork.id)
+  //       ? works.map((w) => (w.id === loadedWork.id ? loadedWork : w))
+  //       : [loadedWork, ...(works ?? [])],
+  //   );
+
+  //   contentDict[loadedWork.id] === undefined && fetchContent(loadedWork);
+  // }, [lastMessage, contentDict, fetchContent]);
 
   if (!works) return <Loading visible />;
 
