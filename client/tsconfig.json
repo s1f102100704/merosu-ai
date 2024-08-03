@@ -16,6 +16,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "types": ["vitest/importMeta"],
+    // "typeRoots": ["./api/@types", "./types", "vitest/importMeta"],
     "incremental": true
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
