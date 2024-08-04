@@ -26,6 +26,7 @@
     "typecheck:server": "npm run typecheck --prefix server"
   },
   "devDependencies": {
+    "@types/dompurify": "^3.0.5",
     "@typescript-eslint/eslint-plugin": "^7.8.0",
     "@typescript-eslint/parser": "^7.8.0",
     "@vitest/coverage-v8": "^1.6.0",

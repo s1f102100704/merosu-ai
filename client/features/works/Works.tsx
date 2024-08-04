@@ -69,15 +69,7 @@ export const Works = () => {
       });
       // setWorks((works) => [work, ...(works ?? [])]);
     }
-    // deleteWork();
   };
-
-  // const deleteWork = () => {
-  //   if (works !== undefined && works?.length > 2) {
-  //     console.log(works.length);
-  //     setWorks(works.slice(0, 2));
-  //   }
-  // };
 
   useEffect(() => {
     if (works !== undefined) return;
@@ -104,17 +96,6 @@ export const Works = () => {
       fetchContent(loadedWork);
     }
   }, [lastMessage, contentDict, fetchContent]);
-  // useEffect(() => {
-  //   if (lastMessage === null) return;
-  //   const loadedWork: CompletedWorkEntity | FailedWorkEntity = JSON.parse(lastMessage.data);
-  //   setWorks((works) =>
-  //     works?.some((w) => w.id === loadedWork.id)
-  //       ? works.map((w) => (w.id === loadedWork.id ? loadedWork : w))
-  //       : [loadedWork, ...(works ?? [])],
-  //   );
-
-  //   contentDict[loadedWork.id] === undefined && fetchContent(loadedWork);
-  // }, [lastMessage, contentDict, fetchContent]);
 
   if (!works) return <Loading visible />;
 
