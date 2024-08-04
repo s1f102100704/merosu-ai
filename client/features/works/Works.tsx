@@ -50,6 +50,7 @@ export const Works = () => {
       ? `wss://${location.host}${WS_PATH}`
       : `ws://localhost:${SERVER_PORT}${WS_PATH}`,
   );
+
   const [works, setWorks] = useState<WorkEntity[]>();
   const [contentDict, setContentDict] = useState<ContentDict>({});
   const [novelUrl, setNovelUrl] = useState('');
@@ -62,25 +63,18 @@ export const Works = () => {
     e.preventDefault();
     setNovelUrl('');
     const work = await apiClient.private.works.$post({ body: { novelUrl } }).catch(catchApiErr);
+    console.log(work);
     if (work !== null && works?.every((w) => w.id !== work.id)) {
       setWorks((prevWorks) => {
         const updatedWorks = [work, ...(prevWorks ?? [])];
         return updatedWorks.length > 3 ? updatedWorks.slice(0, 3) : updatedWorks;
       });
-      // setWorks((works) => [work, ...(works ?? [])]);
     }
-    // deleteWork();
   };
-
-  // const deleteWork = () => {
-  //   if (works !== undefined && works?.length > 2) {
-  //     console.log(works.length);
-  //     setWorks(works.slice(0, 2));
-  //   }
-  // };
 
   useEffect(() => {
     if (works !== undefined) return;
+    //.$getでcontroller.tsのgetが発動
     apiClient.private.works
       .$get()
       .then((ws) => {
@@ -104,17 +98,6 @@ export const Works = () => {
       fetchContent(loadedWork);
     }
   }, [lastMessage, contentDict, fetchContent]);
-  // useEffect(() => {
-  //   if (lastMessage === null) return;
-  //   const loadedWork: CompletedWorkEntity | FailedWorkEntity = JSON.parse(lastMessage.data);
-  //   setWorks((works) =>
-  //     works?.some((w) => w.id === loadedWork.id)
-  //       ? works.map((w) => (w.id === loadedWork.id ? loadedWork : w))
-  //       : [loadedWork, ...(works ?? [])],
-  //   );
-
-  //   contentDict[loadedWork.id] === undefined && fetchContent(loadedWork);
-  // }, [lastMessage, contentDict, fetchContent]);
 
   if (!works) return <Loading visible />;
 

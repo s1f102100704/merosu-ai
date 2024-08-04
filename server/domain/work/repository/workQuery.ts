@@ -58,5 +58,22 @@ export const workQuery = {
     tx.work
       .findMany({ orderBy: { createdAt: 'desc' } })
       .then((works) => Promise.all(works.map(toWorkEntity))),
+  // リストの更新
+  listReload: (tx: Prisma.TransactionClient): Promise<WorkEntity[]> =>
+    tx.work.findMany({ orderBy: { createdAt: 'desc' }, skip: 3 }).then(async (works) => {
+      const idsToDelete = works.map((work) => work.id);
+      if (idsToDelete.length > 0) {
+        await tx.work.deleteMany({
+          where: { id: { in: idsToDelete } },
+        });
+      }
+
+      // 残りの最新3件を取得
+      const latestWorks = await tx.work.findMany({
+        orderBy: { createdAt: 'desc' },
+        take: 3,
+      });
+      return Promise.all(latestWorks.map(toWorkEntity));
+    }),
 };
 //test

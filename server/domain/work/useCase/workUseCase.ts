@@ -19,6 +19,7 @@ export const workUseCase = {
       workEvent.workCreated({ loadingWork, html });
 
       return loadingWork;
+      console.log(loadingWork);
     }),
   complete: (loadingWork: LoadingWorkEntity, image: Buffer): Promise<void> =>
     transaction('RepeatableRead', async (tx) => {

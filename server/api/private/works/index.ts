@@ -5,6 +5,7 @@ export type Methods = DefineMethods<{
   get: {
     resBody: WorkEntity[];
   };
+
   post: {
     reqBody: { novelUrl: string };
     resBody: LoadingWorkEntity;
