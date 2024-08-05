@@ -73,8 +73,8 @@ export const Works = () => {
   };
 
   useEffect(() => {
-    if (works !== undefined) return;
     //.$getでcontroller.tsのgetが発動
+    if (works !== undefined) return;
     apiClient.private.works
       .$get()
       .then((ws) => {

@@ -4,11 +4,11 @@ import { prismaClient } from 'service/prismaClient';
 import { defineController } from './$relay';
 
 export default defineController(() => ({
-  get: () => {
+  get: () =>
     workQuery.listAll(prismaClient).then((works) => ({ status: 200, body: works }));
-    workQuery.listReload(prismaClient).then((works) => ({ status: 200, body: works }));
-  },
+
 
   post: ({ body }) =>
     workUseCase.create(body.novelUrl).then((work) => ({ status: 200, body: work })),
 }));
+// workQuery.listReload(prismaClient).then((works) => ({ status: 200, body: works }));
