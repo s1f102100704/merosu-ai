@@ -2,9 +2,11 @@ import { WS_PATH } from 'api/@constants';
 import type { EntityId } from 'api/@types/brandedId';
 import type { CompletedWorkEntity, FailedWorkEntity, WorkEntity } from 'api/@types/work';
 import DOMPurify from 'dompurify';
+import { useCatchApiErr } from 'hooks/useCatchApiErr';
 import styles from 'pages/history/index.module.css';
 import { useCallback, useEffect, useState } from 'react';
 import useWebSocket from 'react-use-websocket';
+import { apiClient } from 'utils/apiClient';
 import { SERVER_PORT } from 'utils/envValues';
 
 type ContentDict = Record<EntityId['work'], string | undefined>;
@@ -27,6 +29,7 @@ const MainContent = (props: { work: WorkEntity; contentDict: ContentDict }) => {
   }
 };
 const History = () => {
+  const catchApiErr = useCatchApiErr();
   const { lastMessage } = useWebSocket(
     process.env.NODE_ENV === 'production'
       ? `wss://${location.host}${WS_PATH}`
@@ -39,6 +42,18 @@ const History = () => {
     const content = await fetch(w.contentUrl).then((b) => b.text());
     setContentDict((dict) => ({ ...dict, [w.id]: content }));
   }, []);
+
+  useEffect(() => {
+    //.$getでcontroller.tsのgetが発動
+    if (works !== undefined) return;
+    apiClient.private.works
+      .$get()
+      .then((ws) => {
+        setWorks(ws);
+        return Promise.all(ws.map(fetchContent));
+      })
+      .catch(catchApiErr);
+  }, [catchApiErr, works, contentDict, fetchContent]);
 
   useEffect(() => {
     if (lastMessage === null) return;
