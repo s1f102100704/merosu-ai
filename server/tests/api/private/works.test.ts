@@ -10,11 +10,12 @@ test(`${POST(noCookieClient.private.works)} -completed`, async () => {
   const userClient = await createUserClient();
   const novelUrl = 'https://www.aozora.gr.jp/cards/000879/files/127_15260.html';
   await userClient.private.works.$post({ body: { novelUrl } });
-  console.log(0);
+
   //eslint-disable-next-line no-constant-condition
   while (true) {
     const res = await userClient.private.works.$get();
     if (res[0].status !== 'loading') {
+      console.log(1);
       expect(res[0].status).toBe('completed');
       expect(res[0].novelUrl).toBe(novelUrl);
       expect(res[0].title).toBe('羅生門');
