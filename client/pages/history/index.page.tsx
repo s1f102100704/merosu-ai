@@ -22,6 +22,8 @@ const MainContent = (props: { work: WorkEntity; contentDict: ContentDict }) => {
   switch (props.work.status) {
     case 'completed':
       return renderCompleted(props.work, sanitizedContent);
+    case 'loading':
+      return;
 
     /* v8 ignore next 2 */
     default:
@@ -71,7 +73,7 @@ const History = () => {
   }, [lastMessage, contentDict, fetchContent]);
   if (!works) return <div>まだ履歴がありません</div>;
   return (
-    <div>
+    <div className={styles.main}>
       これは履歴のページです
       {works.map((work) => (
         <div key={work.id} className={styles.card}>

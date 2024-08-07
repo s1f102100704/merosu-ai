@@ -26,11 +26,19 @@ model Task {
 }
 
 model Work {
-  id String @id
-  novelUrl String
-  title String
-  author String
-  status String
-  errorMsg String?
+  id        String   @id
+  novelUrl  String
+  title     String
+  author    String
+  status    String
+  errorMsg  String?
   createdAt DateTime
+}
+
+model History {
+  id        String @id
+  novelUrl  String
+  title     String
+  author    String
+  createdAt String
 }
