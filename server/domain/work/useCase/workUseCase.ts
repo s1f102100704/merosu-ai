@@ -14,12 +14,12 @@ export const workUseCase = {
       const loadingWork = await workMethod.create({ novelUrl, title, author });
 
       await workCommand.save(tx, loadingWork);
+      await workCommand.allsave(tx, loadingWork);
       await s3.putText(getContentKey(loadingWork.id), html);
 
       workEvent.workCreated({ loadingWork, html });
 
       return loadingWork;
-      console.log(loadingWork);
     }),
   complete: (loadingWork: LoadingWorkEntity, image: Buffer): Promise<void> =>
     transaction('RepeatableRead', async (tx) => {

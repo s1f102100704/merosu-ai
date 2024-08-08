@@ -77,4 +77,3 @@ export const workQuery = {
       return Promise.all(latestWorks.map(toWorkEntity));
     }),
 };
-//test
