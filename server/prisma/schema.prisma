@@ -36,9 +36,11 @@ model Work {
 }
 
 model History {
-  id        String @id
+  id        String   @id
   novelUrl  String
   title     String
   author    String
-  createdAt String
+  status    String
+  errorMsg  String?
+  createdAt DateTime
 }

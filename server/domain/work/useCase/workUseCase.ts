@@ -14,7 +14,6 @@ export const workUseCase = {
       const loadingWork = await workMethod.create({ novelUrl, title, author });
 
       await workCommand.save(tx, loadingWork);
-      await workCommand.allsave(tx, loadingWork);
       await s3.putText(getContentKey(loadingWork.id), html);
 
       workEvent.workCreated({ loadingWork, html });
@@ -26,6 +25,8 @@ export const workUseCase = {
       const completedWork = await workMethod.complete(loadingWork);
 
       await workCommand.save(tx, completedWork);
+
+      await workCommand.allsave(tx, completedWork);
       await s3.putImage(getImageKey(loadingWork.id), image);
 
       workEvent.workLoaded(completedWork);

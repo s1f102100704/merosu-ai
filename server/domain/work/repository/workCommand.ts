@@ -19,8 +19,9 @@ export const workCommand = {
       },
     });
   },
+  //history にsave
   allsave: async (tx: Prisma.TransactionClient, work: HistoryEntity): Promise<void> => {
-    await tx.work.upsert({
+    await tx.history.upsert({
       where: { id: work.id },
       update: { status: work.status, errorMsg: work.errorMsg },
       create: {
@@ -28,6 +29,8 @@ export const workCommand = {
         title: work.title,
         author: work.author,
         novelUrl: work.novelUrl,
+        status: work.status,
+        errorMsg: work.errorMsg,
         createdAt: new Date(work.createdTime),
       },
     });

@@ -3,7 +3,6 @@ import type { EntityId } from './brandedId';
 
 type WorkBase = {
   id: EntityId['work'];
-
   novelUrl: string;
   title: string;
   author: string;

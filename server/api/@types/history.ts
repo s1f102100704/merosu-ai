@@ -1,9 +1,3 @@
-import type { EntityId } from './brandedId';
+import type { CompletedWorkEntity } from './work';
 
-export type HistoryEntity = {
-  id: EntityId['history'];
-  novelUrl: string;
-  title: string;
-  author: string;
-  createdTime: string;
-};
+export type HistoryEntity = CompletedWorkEntity;
