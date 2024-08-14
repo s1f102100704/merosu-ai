@@ -55,7 +55,7 @@ const toWorkEntity = async (prismaWork: Work): Promise<WorkEntity> => {
 };
 export const workQuery = {
   listAll: (tx: Prisma.TransactionClient): Promise<WorkEntity[]> =>
-    tx.work
+    tx.history
       .findMany({ orderBy: { createdAt: 'desc' } })
       .then((works) => Promise.all(works.map(toWorkEntity))),
 
