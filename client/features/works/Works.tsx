@@ -44,7 +44,7 @@ const MainContent = (props: { work: WorkEntity; contentDict: ContentDict }) => {
 export const Works = () => {
   const { lastMessage } = useWeb();
   const catchApiErr = useCatchApiErr();
-  console.log(lastMessage);
+
   // const socketUrl =
   //   process.env.NODE_ENV === 'production'
   //     ? `wss://${location.host}${WS_PATH}`

@@ -13,6 +13,7 @@ import { getContentKey, getImageKey } from '../service/getS3Key';
 export const workUseCase = {
   create: (novelUrl: string): Promise<LoadingWorkEntity> =>
     transaction('RepeatableRead', async (tx) => {
+      console.log(1);
       const { title, author, html } = await novelQuery.scrape(novelUrl);
       const loadingWork = await workMethod.create({ novelUrl, title, author });
       const hisWork = await workMethod.crehis({ novelUrl, title, author });
@@ -24,7 +25,6 @@ export const workUseCase = {
       await s3.putText(getContentKeyHis(hisWork.id), html);
 
       workEvent.workCreated({ loadingWork, hisWork, html });
-
       return loadingWork;
     }),
   compHis: (hisWork: HistoryEntity, image: Buffer): Promise<void> =>
