@@ -1,5 +1,8 @@
 import type { LoadingWorkEntity } from 'api/@types/work';
 
+import type { HistoryEntity } from 'api/@types/history';
+import { historyCommand } from 'domain/history/repository/historyCommand';
+import { getContentKeyHis, getImageKeyHis } from 'domain/history/service/getS3Key';
 import { transaction } from 'service/prismaClient';
 import { s3 } from 'service/s3Client';
 import { workEvent } from '../event/workEvent';
@@ -12,21 +15,31 @@ export const workUseCase = {
     transaction('RepeatableRead', async (tx) => {
       const { title, author, html } = await novelQuery.scrape(novelUrl);
       const loadingWork = await workMethod.create({ novelUrl, title, author });
+      const hisWork = await workMethod.crehis({ novelUrl, title, author });
 
       await workCommand.save(tx, loadingWork);
-      await s3.putText(getContentKey(loadingWork.id), html);
+      await historyCommand.save(tx, hisWork);
 
-      workEvent.workCreated({ loadingWork, html });
+      await s3.putText(getContentKey(loadingWork.id), html);
+      await s3.putText(getContentKeyHis(hisWork.id), html);
+
+      workEvent.workCreated({ loadingWork, hisWork, html });
 
       return loadingWork;
     }),
+  compHis: (hisWork: HistoryEntity, image: Buffer): Promise<void> =>
+    transaction('RepeatableRead', async (tx) => {
+      const compHis = await workMethod.comphis(hisWork);
+      await historyCommand.save(tx, compHis);
+      await s3.putImage(getImageKeyHis(hisWork.id), image);
+      workEvent.workLoaded(compHis);
+    }),
+
   complete: (loadingWork: LoadingWorkEntity, image: Buffer): Promise<void> =>
     transaction('RepeatableRead', async (tx) => {
       const completedWork = await workMethod.complete(loadingWork);
 
       await workCommand.save(tx, completedWork);
-
-      await workCommand.allsave(tx, completedWork);
       await s3.putImage(getImageKey(loadingWork.id), image);
 
       workEvent.workLoaded(completedWork);

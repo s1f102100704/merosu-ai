@@ -1,15 +1,13 @@
-import { WS_PATH } from 'api/@constants';
 import type { EntityId } from 'api/@types/brandedId';
 import type { CompletedWorkEntity, FailedWorkEntity, WorkEntity } from 'api/@types/work';
 import { ContentLoading } from 'components/loading/ContentLoading';
 import { Loading } from 'components/loading/Loading';
 import DOMPurify from 'dompurify';
 import { useCatchApiErr } from 'hooks/useCatchApiErr';
+import { useWeb } from 'hooks/useWeb';
 import type { FormEvent } from 'react';
 import { useCallback, useEffect, useState } from 'react';
-import useWebSocket from 'react-use-websocket';
 import { apiClient } from 'utils/apiClient';
-import { SERVER_PORT } from 'utils/envValues';
 import styles from './works.module.css';
 
 type ContentDict = Record<EntityId['work'], string | undefined>;
@@ -44,12 +42,14 @@ const MainContent = (props: { work: WorkEntity; contentDict: ContentDict }) => {
   }
 };
 export const Works = () => {
+  const { lastMessage } = useWeb();
   const catchApiErr = useCatchApiErr();
-  const { lastMessage } = useWebSocket(
-    process.env.NODE_ENV === 'production'
-      ? `wss://${location.host}${WS_PATH}`
-      : `ws://localhost:${SERVER_PORT}${WS_PATH}`,
-  );
+  console.log(lastMessage);
+  // const socketUrl =
+  //   process.env.NODE_ENV === 'production'
+  //     ? `wss://${location.host}${WS_PATH}`
+  //     : `ws://localhost:${SERVER_PORT}${WS_PATH}`;
+  // const { lastMessage } = useWebSocket(socketUrl);
 
   const [works, setWorks] = useState<WorkEntity[]>();
   const [contentDict, setContentDict] = useState<ContentDict>({});
@@ -63,7 +63,7 @@ export const Works = () => {
     e.preventDefault();
     setNovelUrl('');
     const work = await apiClient.private.works.$post({ body: { novelUrl } }).catch(catchApiErr);
-    console.log(work);
+
     if (work !== null && works?.every((w) => w.id !== work.id)) {
       setWorks((prevWorks) => {
         const updatedWorks = [work, ...(prevWorks ?? [])];

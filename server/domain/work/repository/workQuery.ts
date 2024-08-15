@@ -1,6 +1,8 @@
-import type { Prisma, Work } from '@prisma/client';
+import type { History, Prisma, Work } from '@prisma/client';
 import { WORK_STATUSES } from 'api/@constants';
+import type { HistoryEntity } from 'api/@types/history';
 import type { WorkEntity } from 'api/@types/work';
+import { getContentKeyHis, getImageKeyHis } from 'domain/history/service/getS3Key';
 import { brandedId } from 'service/brandedId';
 import { s3 } from 'service/s3Client';
 import { z } from 'zod';
@@ -53,11 +55,28 @@ const toWorkEntity = async (prismaWork: Work): Promise<WorkEntity> => {
       throw new Error(status satisfies never);
   }
 };
+
+const toHistoryEntity = async (prismaWork: History): Promise<HistoryEntity> => {
+  const id = brandedId.history.entity.parse(prismaWork.id);
+  const contentUrl = await s3.getSignedUrl(getContentKeyHis(id));
+  return {
+    id,
+    status: 'completed',
+    novelUrl: prismaWork.novelUrl,
+    title: prismaWork.title,
+    author: prismaWork.author,
+    createdTime: prismaWork.createdAt.getTime(),
+    contentUrl,
+    imageUrl: await s3.getSignedUrl(getImageKeyHis(id)),
+    errorMsg: null,
+  };
+};
+
 export const workQuery = {
-  listAll: (tx: Prisma.TransactionClient): Promise<WorkEntity[]> =>
+  listAll: (tx: Prisma.TransactionClient): Promise<HistoryEntity[]> =>
     tx.history
       .findMany({ orderBy: { createdAt: 'desc' } })
-      .then((works) => Promise.all(works.map(toWorkEntity))),
+      .then((works) => Promise.all(works.map(toHistoryEntity))),
 
   // リストの更新
   listReload: (tx: Prisma.TransactionClient): Promise<WorkEntity[]> =>

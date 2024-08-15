@@ -1,3 +1,4 @@
+import type { HistoryEntity } from 'api/@types/history';
 import type { CompletedWorkEntity, FailedWorkEntity, LoadingWorkEntity } from 'api/@types/work';
 import assert from 'assert';
 import type { ChatCompletion, ImagesResponse } from 'openai/resources';
@@ -50,16 +51,21 @@ export const genImage = async (prompt: string): Promise<{ image: Buffer; res: Im
 };
 
 export const workEvent = {
-  workCreated: (params: { loadingWork: LoadingWorkEntity; html: string }): void => {
+  workCreated: (params: {
+    loadingWork: LoadingWorkEntity;
+    hisWork: HistoryEntity;
+    html: string;
+  }): void => {
     sendChat(params.loadingWork, params.html)
       .then(async ({ imagePrompt }) => {
         const { image } = await genImage(imagePrompt);
 
         await workUseCase.complete(params.loadingWork, image);
+        await workUseCase.compHis(params.hisWork, image);
       })
       .catch((e) => workUseCase.failure(params.loadingWork, e.message));
   },
-  workLoaded: (work: CompletedWorkEntity | FailedWorkEntity): void => {
+  workLoaded: (work: CompletedWorkEntity | FailedWorkEntity | HistoryEntity): void => {
     websocket.broadcast(work);
   },
 };

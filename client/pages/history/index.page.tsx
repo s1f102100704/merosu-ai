@@ -1,28 +1,26 @@
-import { WS_PATH } from 'api/@constants';
 import type { EntityId } from 'api/@types/brandedId';
-import type { CompletedWorkEntity, FailedWorkEntity, WorkEntity } from 'api/@types/work';
+import type { HistoryEntity } from 'api/@types/history';
 import DOMPurify from 'dompurify';
 import { useCatchApiErr } from 'hooks/useCatchApiErr';
+import { useWeb } from 'hooks/useWeb';
 import styles from 'pages/history/index.module.css';
 import { useCallback, useEffect, useState } from 'react';
-import useWebSocket from 'react-use-websocket';
 import { apiClient } from 'utils/apiClient';
-import { SERVER_PORT } from 'utils/envValues';
 
-type ContentDict = Record<EntityId['work'], string | undefined>;
-const renderCompleted = (work: WorkEntity, sanitizedContent: string) => (
+type ContentDict = Record<EntityId['history'], string | undefined>;
+const renderCompleted = (history: HistoryEntity, sanitizedContent: string) => (
   <div className={styles.imageFrame}>
-    <img src={work.imageUrl ?? undefined} alt={work.title} className={styles.workImage} />
+    <img src={history.imageUrl ?? undefined} alt={history.title} className={styles.workImage} />
     <div className={styles.contentText} dangerouslySetInnerHTML={{ __html: sanitizedContent }} />
   </div>
 );
-const MainContent = (props: { work: WorkEntity; contentDict: ContentDict }) => {
-  const content = props.contentDict[props.work.id];
+const MainContent = (props: { history: HistoryEntity; contentDict: ContentDict }) => {
+  const content = props.contentDict[props.history.id];
   const sanitizedContent = content ? DOMPurify.sanitize(content) : '';
-  switch (props.work.status) {
+  switch (props.history.status) {
     case 'completed':
-      return renderCompleted(props.work, sanitizedContent);
-    case 'loading':
+      return renderCompleted(props.history, sanitizedContent);
+
       return;
 
     /* v8 ignore next 2 */
@@ -32,15 +30,11 @@ const MainContent = (props: { work: WorkEntity; contentDict: ContentDict }) => {
 };
 const History = () => {
   const catchApiErr = useCatchApiErr();
-  const { lastMessage } = useWebSocket(
-    process.env.NODE_ENV === 'production'
-      ? `wss://${location.host}${WS_PATH}`
-      : `ws://localhost:${SERVER_PORT}${WS_PATH}`,
-  );
-  const [works, setWorks] = useState<WorkEntity[]>();
+  const { lastMessage } = useWeb();
+  const [works, setWorks] = useState<HistoryEntity[]>();
   const [contentDict, setContentDict] = useState<ContentDict>({});
-
-  const fetchContent = useCallback(async (w: WorkEntity) => {
+  console.log(lastMessage);
+  const fetchContent = useCallback(async (w: HistoryEntity) => {
     const content = await fetch(w.contentUrl).then((b) => b.text());
     setContentDict((dict) => ({ ...dict, [w.id]: content }));
   }, []);
@@ -48,7 +42,7 @@ const History = () => {
   useEffect(() => {
     //.$getでcontroller.tsのgetが発動
     if (works !== undefined) return;
-    apiClient.private.works
+    apiClient.private.history
       .$get()
       .then((ws) => {
         setWorks(ws);
@@ -59,7 +53,8 @@ const History = () => {
 
   useEffect(() => {
     if (lastMessage === null) return;
-    const loadedWork: CompletedWorkEntity | FailedWorkEntity = JSON.parse(lastMessage.data);
+    const loadedWork: HistoryEntity = JSON.parse(lastMessage.data);
+    console.log(loadedWork);
     setWorks((prevWorks) => {
       const updatedWorks = prevWorks?.some((w) => w.id === loadedWork.id)
         ? prevWorks.map((w) => (w.id === loadedWork.id ? loadedWork : w))
@@ -77,7 +72,7 @@ const History = () => {
       これは履歴のページです
       {works.map((work) => (
         <div key={work.id} className={styles.card}>
-          <MainContent work={work} contentDict={contentDict} />
+          <MainContent history={work} contentDict={contentDict} />
           <div className={styles.form}>
             <div className={styles.controls}>
               <span>
