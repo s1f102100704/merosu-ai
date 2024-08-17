@@ -8,11 +8,12 @@ generator client {
 }
 
 model User {
-  id         String   @id
+  id         String     @id
   email      String
   signInName String
   createdAt  DateTime
   tasks      Task[]
+  Favorite   Favorite[]
 }
 
 model Task {
@@ -26,13 +27,14 @@ model Task {
 }
 
 model Work {
-  id        String   @id
+  id        String     @id
   novelUrl  String
   title     String
   author    String
   status    String
   errorMsg  String?
   createdAt DateTime
+  Favorite  Favorite[]
 }
 
 model History {
@@ -43,4 +45,13 @@ model History {
   status    String
   errorMsg  String?
   createdAt DateTime
+}
+
+model Favorite {
+  id        String   @id
+  favorite  Work     @relation(fields: [historyId], references: [id])
+  Author    User     @relation(fields: [authorId], references: [id])
+  createdAt DateTime
+  authorId  String
+  historyId String
 }
