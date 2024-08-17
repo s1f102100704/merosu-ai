@@ -55,12 +55,11 @@ const History = () => {
     if (lastMessage === null) return;
     const loadedWork: HistoryEntity = JSON.parse(lastMessage.data);
     console.log(loadedWork);
-    setWorks((prevWorks) => {
-      const updatedWorks = prevWorks?.some((w) => w.id === loadedWork.id)
+    setWorks((prevWorks) =>
+      prevWorks?.some((w) => w.id === loadedWork.id)
         ? prevWorks.map((w) => (w.id === loadedWork.id ? loadedWork : w))
-        : [loadedWork, ...(prevWorks ?? [])];
-      return updatedWorks.length > 3 ? updatedWorks.slice(0, 3) : updatedWorks;
-    });
+        : [loadedWork, ...(prevWorks ?? [])],
+    );
 
     if (contentDict[loadedWork.id] === undefined) {
       fetchContent(loadedWork);
