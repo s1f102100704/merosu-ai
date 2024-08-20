@@ -3,7 +3,6 @@ import type { CompletedWorkEntity, FailedWorkEntity, WorkEntity } from 'api/@typ
 import { ContentLoading } from 'components/loading/ContentLoading';
 import { Loading } from 'components/loading/Loading';
 import DOMPurify from 'dompurify';
-import { FavoriteBtn } from 'features/favoriteBtn/FavoriteBtn';
 import { useCatchApiErr } from 'hooks/useCatchApiErr';
 import { useWeb } from 'hooks/useWeb';
 import type { FormEvent } from 'react';
@@ -45,13 +44,6 @@ const MainContent = (props: { work: WorkEntity; contentDict: ContentDict }) => {
 export const Works = () => {
   const { lastMessage } = useWeb();
   const catchApiErr = useCatchApiErr();
-
-  // const socketUrl =
-  //   process.env.NODE_ENV === 'production'
-  //     ? `wss://${location.host}${WS_PATH}`
-  //     : `ws://localhost:${SERVER_PORT}${WS_PATH}`;
-  // const { lastMessage } = useWebSocket(socketUrl);
-
   const [works, setWorks] = useState<WorkEntity[]>();
   const [contentDict, setContentDict] = useState<ContentDict>({});
   const [novelUrl, setNovelUrl] = useState('');
@@ -72,7 +64,10 @@ export const Works = () => {
       });
     }
   };
-
+  const createLike = async (likedWork: WorkEntity) => {
+    likedWork;
+  };
+  //$getをつかってスキーマにアクセスしに行く
   useEffect(() => {
     //.$getでcontroller.tsのgetが発動
     if (works !== undefined) return;
@@ -126,7 +121,9 @@ export const Works = () => {
               <span>
                 {work.title}-{work.author}
               </span>
-              <FavoriteBtn />
+              <div className={styles.likebtn} onClick={() => createLike(work)}>
+                ♡
+              </div>
             </div>
           </div>
         </div>

@@ -33,7 +33,6 @@ const History = () => {
   const { lastMessage } = useWeb();
   const [works, setWorks] = useState<HistoryEntity[]>();
   const [contentDict, setContentDict] = useState<ContentDict>({});
-  console.log(lastMessage);
   const fetchContent = useCallback(async (w: HistoryEntity) => {
     const content = await fetch(w.contentUrl).then((b) => b.text());
     setContentDict((dict) => ({ ...dict, [w.id]: content }));
