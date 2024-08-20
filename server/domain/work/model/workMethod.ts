@@ -1,5 +1,11 @@
+import type { FavoriteEntity } from 'api/@types/favorite';
 import type { HistoryEntity } from 'api/@types/history';
-import type { CompletedWorkEntity, FailedWorkEntity, LoadingWorkEntity } from 'api/@types/work';
+import type {
+  CompletedWorkEntity,
+  FailedWorkEntity,
+  LoadingWorkEntity,
+  WorkEntity,
+} from 'api/@types/work';
 import { getContentKeyHis, getImageKeyHis } from 'domain/history/service/getS3Key';
 import { brandedId } from 'service/brandedId';
 import { s3 } from 'service/s3Client';
@@ -28,11 +34,7 @@ const workSchema = yup.object().shape({
   author: yup.string().max(255).required(),
 });
 export const workMethod = {
-  createFav: async (val: {
-    novelUrl: string;
-    title: string;
-    author: string;
-  }): Promise<HistoryEntity> => {
+  createFav: async (val: { work: WorkEntity }): Promise<FavoriteEntity> => {
     try {
       await workSchema.validate(val);
     } catch (error) {
@@ -41,17 +43,10 @@ export const workMethod = {
       }
       throw new Error('An unexpected error occurred during validation.');
     }
-    const id = brandedId.history.entity.parse(ulid());
+    const id = brandedId.favorite.entity.parse(ulid());
     return {
       id,
-      status: 'completed',
-      novelUrl: val.novelUrl,
-      title: val.title,
-      author: val.author,
-      contentUrl: await s3.getSignedUrl(getContentKeyHis(id)),
-      createdTime: Date.now(),
-      imageUrl: '',
-      errorMsg: null,
+      authorId:
     };
   },
   crehis: async (val: {
