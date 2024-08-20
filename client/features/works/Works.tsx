@@ -3,6 +3,7 @@ import type { CompletedWorkEntity, FailedWorkEntity, WorkEntity } from 'api/@typ
 import { ContentLoading } from 'components/loading/ContentLoading';
 import { Loading } from 'components/loading/Loading';
 import DOMPurify from 'dompurify';
+import { FavoriteBtn } from 'features/favoriteBtn/FavoriteBtn';
 import { useCatchApiErr } from 'hooks/useCatchApiErr';
 import { useWeb } from 'hooks/useWeb';
 import type { FormEvent } from 'react';
@@ -125,6 +126,7 @@ export const Works = () => {
               <span>
                 {work.title}-{work.author}
               </span>
+              <FavoriteBtn />
             </div>
           </div>
         </div>

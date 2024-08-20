@@ -6,11 +6,17 @@ export const Side = () => {
   const showHistory = () => {
     router.push(pagesPath.history.$url());
   };
+  const showLike = () => {
+    router.push(pagesPath.favorite.$url());
+  };
   return (
     <main>
-      <a className={styles.hisButton} onClick={showHistory}>
+      <div className={styles.hisButton} onClick={showHistory}>
         履歴
-      </a>
+      </div>
+      <div className={styles.hisButton} onClick={showLike}>
+        Like
+      </div>
     </main>
   );
 };
