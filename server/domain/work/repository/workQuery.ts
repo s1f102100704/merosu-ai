@@ -95,4 +95,10 @@ export const workQuery = {
       });
       return Promise.all(latestWorks.map(toWorkEntity));
     }),
+  // likeList: (tx: Prisma.TransactionClient, likedWork: WorkEntity): Promise<WorkEntity[]> =>
+  //   tx.work
+  //     .findFirst({
+  //       where: { id: likedWork.id },
+  //     })
+  //     .then(),
 };

@@ -28,6 +28,32 @@ const workSchema = yup.object().shape({
   author: yup.string().max(255).required(),
 });
 export const workMethod = {
+  createFav: async (val: {
+    novelUrl: string;
+    title: string;
+    author: string;
+  }): Promise<HistoryEntity> => {
+    try {
+      await workSchema.validate(val);
+    } catch (error) {
+      if (error instanceof yup.ValidationError) {
+        throw new Error(`Validation failed: ${error.message}`);
+      }
+      throw new Error('An unexpected error occurred during validation.');
+    }
+    const id = brandedId.history.entity.parse(ulid());
+    return {
+      id,
+      status: 'completed',
+      novelUrl: val.novelUrl,
+      title: val.title,
+      author: val.author,
+      contentUrl: await s3.getSignedUrl(getContentKeyHis(id)),
+      createdTime: Date.now(),
+      imageUrl: '',
+      errorMsg: null,
+    };
+  },
   crehis: async (val: {
     novelUrl: string;
     title: string;
