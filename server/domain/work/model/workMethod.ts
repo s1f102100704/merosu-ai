@@ -95,7 +95,7 @@ export const workMethod = {
     return {
       id,
       status: 'loading',
-      authorId: val.authorId,
+      user: {id:val.},
       novelUrl: val.novelUrl,
       title: val.title,
       author: val.author,
