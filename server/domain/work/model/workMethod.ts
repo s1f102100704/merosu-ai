@@ -11,6 +11,7 @@ import { brandedId } from 'service/brandedId';
 import { s3 } from 'service/s3Client';
 import { ulid } from 'ulid';
 import * as yup from 'yup';
+import { string } from 'zod';
 import { getContentKey, getImageKey } from '../service/getS3Key';
 
 const aozoraUrl = yup
@@ -46,7 +47,9 @@ export const workMethod = {
     const id = brandedId.favorite.entity.parse(ulid());
     return {
       id,
-      authorId:
+      workId: val.work,
+      authorId: string,
+      createdTime: Date.now(),
     };
   },
   crehis: async (val: {
@@ -92,6 +95,7 @@ export const workMethod = {
     return {
       id,
       status: 'loading',
+      authorId: val.authorId,
       novelUrl: val.novelUrl,
       title: val.title,
       author: val.author,

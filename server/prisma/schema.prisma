@@ -14,6 +14,7 @@ model User {
   createdAt  DateTime
   tasks      Task[]
   Favorite   Favorite[]
+  Work       Work[]
 }
 
 model Task {
@@ -34,6 +35,8 @@ model Work {
   status    String
   errorMsg  String?
   createdAt DateTime
+  Author    User       @relation(fields: [authorId], references: [id])
+  authorId  String
   Favorite  Favorite[]
 }
 
