@@ -7,7 +7,7 @@ export default defineController(() => ({
   get: () => workQuery.listReload(prismaClient).then((works) => ({ status: 200, body: works })),
   // .listReload(prismaClient)
 
-  post: ({ body }) =>
-    workUseCase.create(body.novelUrl).then((work) => ({ status: 200, body: work })),
+  post: ({ user, body }) =>
+    workUseCase.create(user, body.novelUrl).then((work) => ({ status: 200, body: user, work })),
 }));
 // workQuery.listReload(prismaClient).then((works) => ({ status: 200, body: works }));
