@@ -13,6 +13,7 @@ import { ulid } from 'ulid';
 import * as yup from 'yup';
 import { string } from 'zod';
 import { getContentKey, getImageKey } from '../service/getS3Key';
+import { UserEntity } from 'api/@types/user';
 
 const aozoraUrl = yup
   .string()
@@ -35,7 +36,7 @@ const workSchema = yup.object().shape({
   author: yup.string().max(255).required(),
 });
 export const workMethod = {
-  createFav: async (val: { work: WorkEntity }): Promise<FavoriteEntity> => {
+  createFav: async (val: { user:UserEntity,work: WorkEntity }): Promise<FavoriteEntity> => {
     try {
       await workSchema.validate(val);
     } catch (error) {
@@ -48,7 +49,7 @@ export const workMethod = {
     return {
       id,
       workId: val.work,
-      authorId: string,
+      authorId: {id:val.user.id,signInName:val.user.signInName},
       createdTime: Date.now(),
     };
   },

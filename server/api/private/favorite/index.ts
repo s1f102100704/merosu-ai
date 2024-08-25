@@ -1,3 +1,4 @@
+import type { FavoriteEntity } from 'api/@types/favorite';
 import type { WorkEntity } from 'api/@types/work';
 import type { DefineMethods } from 'aspida';
 
@@ -7,6 +8,6 @@ export type Methods = DefineMethods<{
   };
   post: {
     reqBody: WorkEntity;
-    resBody: WorkEntity;
+    resBody: FavoriteEntity;
   };
 }>;
