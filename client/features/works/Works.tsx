@@ -66,7 +66,7 @@ export const Works = () => {
     }
   };
   const createLike = async (likedWork: WorkEntity) => {
-    const work = apiClient.private.favorite.$get(likedWork);
+    const work = await apiClient.private.favorite.$post({ body: likedWork });
   };
   //$getをつかってスキーマにアクセスしに行く
   useEffect(() => {
