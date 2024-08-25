@@ -10,7 +10,7 @@ export const workCommand = {
       create: {
         id: work.id,
         title: work.title,
-        authorId: work.user,
+        authorId: work.user.id,
         author: work.author,
         novelUrl: work.novelUrl,
         status: work.status,

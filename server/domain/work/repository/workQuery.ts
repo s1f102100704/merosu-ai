@@ -1,4 +1,4 @@
-import type { History, Prisma, Work } from '@prisma/client';
+import type { History, Prisma, User, Work } from '@prisma/client';
 import { WORK_STATUSES } from 'api/@constants';
 import type { HistoryEntity } from 'api/@types/history';
 import type { WorkEntity } from 'api/@types/work';
@@ -8,8 +8,9 @@ import { s3 } from 'service/s3Client';
 import { z } from 'zod';
 import { getContentKey, getImageKey } from '../service/getS3Key';
 
-const toWorkEntity = async (prismaWork: Work): Promise<WorkEntity> => {
+const toWorkEntity = async (prismaWork: Work & { User: User }): Promise<WorkEntity> => {
   const id = brandedId.work.entity.parse(prismaWork.id);
+  const userId = brandedId.user.entity.parse(prismaWork.User.id);
   const status = z.enum(WORK_STATUSES).parse(prismaWork.status);
   const contentUrl = await s3.getSignedUrl(getContentKey(id));
   switch (status) {
@@ -17,6 +18,7 @@ const toWorkEntity = async (prismaWork: Work): Promise<WorkEntity> => {
       return {
         id,
         status,
+        user: { id: userId, signInName: prismaWork.User.signInName },
         novelUrl: prismaWork.novelUrl,
         title: prismaWork.title,
         author: prismaWork.author,
@@ -29,6 +31,7 @@ const toWorkEntity = async (prismaWork: Work): Promise<WorkEntity> => {
       return {
         id,
         status,
+        user: { id: userId, signInName: prismaWork.User.signInName },
         novelUrl: prismaWork.novelUrl,
         title: prismaWork.title,
         author: prismaWork.author,
@@ -42,6 +45,7 @@ const toWorkEntity = async (prismaWork: Work): Promise<WorkEntity> => {
       return {
         id,
         status,
+        user: { id: userId, signInName: prismaWork.User.signInName },
         novelUrl: prismaWork.novelUrl,
         title: prismaWork.title,
         author: prismaWork.author,

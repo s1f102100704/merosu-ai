@@ -1,6 +1,7 @@
 import type { LoadingWorkEntity } from 'api/@types/work';
 
 import type { HistoryEntity } from 'api/@types/history';
+import type { UserEntity } from 'api/@types/user';
 import { historyCommand } from 'domain/history/repository/historyCommand';
 import { getContentKeyHis, getImageKeyHis } from 'domain/history/service/getS3Key';
 import { transaction } from 'service/prismaClient';
@@ -11,10 +12,10 @@ import { novelQuery } from '../repository/novelQuery';
 import { workCommand } from '../repository/workCommand';
 import { getContentKey, getImageKey } from '../service/getS3Key';
 export const workUseCase = {
-  create: (novelUrl: string): Promise<LoadingWorkEntity> =>
+  create: (user: UserEntity, novelUrl: string): Promise<LoadingWorkEntity> =>
     transaction('RepeatableRead', async (tx) => {
       const { title, author, html } = await novelQuery.scrape(novelUrl);
-      const loadingWork = await workMethod.create({ novelUrl, title, author });
+      const loadingWork = await workMethod.create({ user, novelUrl, title, author });
       const hisWork = await workMethod.crehis({ novelUrl, title, author });
 
       await workCommand.save(tx, loadingWork);

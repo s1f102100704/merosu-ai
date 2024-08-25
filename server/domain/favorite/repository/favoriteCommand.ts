@@ -9,7 +9,7 @@ export const favoriteCommand = {
       create: {
         id: favorite.id,
         createdAt: new Date(favorite.createdTime),
-        authorId: favorite.authorId.id,
+        authorId: favorite.user.id,
         workId: favorite.workId.id,
       },
     });

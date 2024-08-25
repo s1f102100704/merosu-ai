@@ -1,5 +1,6 @@
 import type { FavoriteEntity } from 'api/@types/favorite';
 import type { HistoryEntity } from 'api/@types/history';
+import type { UserEntity } from 'api/@types/user';
 import type {
   CompletedWorkEntity,
   FailedWorkEntity,
@@ -11,9 +12,7 @@ import { brandedId } from 'service/brandedId';
 import { s3 } from 'service/s3Client';
 import { ulid } from 'ulid';
 import * as yup from 'yup';
-import { string } from 'zod';
 import { getContentKey, getImageKey } from '../service/getS3Key';
-import { UserEntity } from 'api/@types/user';
 
 const aozoraUrl = yup
   .string()
@@ -36,7 +35,7 @@ const workSchema = yup.object().shape({
   author: yup.string().max(255).required(),
 });
 export const workMethod = {
-  createFav: async (val: { user:UserEntity,work: WorkEntity }): Promise<FavoriteEntity> => {
+  createFav: async (val: { user: UserEntity; work: WorkEntity }): Promise<FavoriteEntity> => {
     try {
       await workSchema.validate(val);
     } catch (error) {
@@ -49,7 +48,7 @@ export const workMethod = {
     return {
       id,
       workId: val.work,
-      authorId: {id:val.user.id,signInName:val.user.signInName},
+      authorId: { id: val.user.id, signInName: val.user.signInName },
       createdTime: Date.now(),
     };
   },
@@ -80,6 +79,7 @@ export const workMethod = {
     };
   },
   create: async (val: {
+    user: UserEntity;
     novelUrl: string;
     title: string;
     author: string;
@@ -96,7 +96,7 @@ export const workMethod = {
     return {
       id,
       status: 'loading',
-      user: {id:val.},
+      user: { id: val.user.id, signInName: val.user.signInName },
       novelUrl: val.novelUrl,
       title: val.title,
       author: val.author,

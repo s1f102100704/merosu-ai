@@ -44,7 +44,6 @@ const MainContent = (props: { work: WorkEntity; contentDict: ContentDict }) => {
 export const Works = () => {
   const { lastMessage } = useWeb();
   const catchApiErr = useCatchApiErr();
-  const [user];
   const [works, setWorks] = useState<WorkEntity[]>();
   const [contentDict, setContentDict] = useState<ContentDict>({});
   const [novelUrl, setNovelUrl] = useState('');
