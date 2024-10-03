@@ -97,7 +97,7 @@ export const workQuery = {
         orderBy: { createdAt: 'desc' },
         take: 3,
       });
-      return Promise.all(latestWorks.map(toWorkEntity));
+      return Promise.all(latestWorks.map(toworkEntity));
     }),
   // likeList: (tx: Prisma.TransactionClient, likedWork: WorkEntity): Promise<WorkEntity[]> =>
   //   tx.work
